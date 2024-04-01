@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ./data/rabbitmq/data/:/var/lib/rabbitmq/
+        - ./data/rabbitmq/log/:/var/log/rabbitmq
+
+  postgres:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes: 
+      - ./data/postgresql/data:/var/lib/postgresql/data
+      #- ./data/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+  data-store:
+    image: demo-data-store:main
+    depends_on:
+      - rabbitmq
+      - postgres
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+  api-gateway:
+    image: demo-api-gateway:main
+    ports:
+      - 3000:3000
+    depends_on:
+      - rabbitmq
+      - postgres
+    environment:
+      - NODE_ENV=production
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
