@@ -1,0 +1,24 @@
+{
+  "name": "demo-api-gateway",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/demo-api-gateway/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "demo-api-gateway:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "demo-api-gateway:build:development"
+        },
+        "production": {
+          "buildTarget": "demo-api-gateway:build:production"
+        }
+      }
+    }
+  }
+}
