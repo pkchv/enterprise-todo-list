@@ -1,4 +1,4 @@
 -- Create a dedicated database for each microservice
 
-CREATE DATABASE datastore;
-CREATE DATABASE api_gateway;
+CREATE DATABASE todos_api;
+CREATE DATABASE todos_datastore;

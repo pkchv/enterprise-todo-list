@@ -1,7 +1,7 @@
 {
-  "name": "demo-api-gateway",
+  "name": "todos-api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/demo-api-gateway/src",
+  "sourceRoot": "apps/todos-api/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -9,14 +9,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "demo-api-gateway:build"
+        "buildTarget": "todos-api:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "demo-api-gateway:build:development"
+          "buildTarget": "todos-api:build:development"
         },
         "production": {
-          "buildTarget": "demo-api-gateway:build:production"
+          "buildTarget": "todos-api:build:production"
         }
       }
     },
@@ -26,7 +26,7 @@
       "options": {
         "engine": "docker",
         "metadata": {
-          "images": ["demo-api-gateway"],
+          "images": ["todos-api"],
           "load": true,
           "tags": [
             "type=schedule",

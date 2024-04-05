@@ -1,7 +1,7 @@
 {
-  "name": "demo-data-store",
+  "name": "todos-datastore",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/demo-data-store/src",
+  "sourceRoot": "apps/todos-datastore/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -9,14 +9,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "demo-data-store:build"
+        "buildTarget": "todos-datastore:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "demo-data-store:build:development"
+          "buildTarget": "todos-datastore:build:development"
         },
         "production": {
-          "buildTarget": "demo-data-store:build:production"
+          "buildTarget": "todos-datastore:build:production"
         }
       }
     },
@@ -26,7 +26,7 @@
       "options": {
         "engine": "docker",
         "metadata": {
-          "images": ["demo-data-store"],
+          "images": ["todos-datastore"],
           "load": true,
           "tags": [
             "type=schedule",

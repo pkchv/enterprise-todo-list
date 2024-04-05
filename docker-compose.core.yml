@@ -3,16 +3,19 @@ version: "3.8"
 services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
+    container_name: rabbitmq
     ports:
         - 5672:5672
         - 8880:15672
     volumes:
         - ./data/rabbitmq/data/:/var/lib/rabbitmq/
         - ./data/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - core
 
   postgres:
     image: postgres:14.1-alpine
+    container_name: postgres
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -22,14 +25,27 @@ services:
     volumes: 
       - ./data/postgresql/data:/var/lib/postgresql/data
       - ./data/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    networks:
+      - core
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin
     restart: always
     ports:
       - "8881:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: postgres@docker.local
+      # Note: For some reason *.local domains are not working properly with pgAdmin
+      PGADMIN_DEFAULT_EMAIL: postgres@local.org
       PGADMIN_DEFAULT_PASSWORD: postgres
+    user: '$UID:$GID'
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
+      - ./data/pgadmin/sessions:/var/lib/pgadmin/sessions
+    networks:
+      - core
+    depends_on:
+      - postgres
+
+networks:
+  core:

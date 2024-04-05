@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import config from './config';
-import { EventsController } from './events.controller';
-import { Todo } from './models/todo.model';
-import { TodoService } from './todo.service';
-import { QueueClientService } from './queue-client.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RmqUrl } from '@nestjs/microservices/external/rmq-url.interface';
-import { JobStatusService } from './job-status.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import config from './config';
+import { Todo } from './models/todo.model';
+import { QueueClientService } from './queue-client.service';
+import { TodoCommandsService } from './todo-commands.service';
+import { TodoController } from './todo.controller';
+import { TodoService } from './todo.service';
 import { JobStatus } from './models/job-status.model';
+import { JobStatusService } from './job-status.service';
 
 @Module({
   imports: [
@@ -26,11 +27,9 @@ import { JobStatus } from './models/job-status.model';
         password: configService.get('database.password'),
         database: configService.get('database.database'),
         entities: [Todo, JobStatus],
-        // Note: not recommended for production
-        synchronize: true,
+        synchronize: process.env.NODE_ENV === 'development',
       }),
     }),
-    TypeOrmModule.forFeature([Todo, JobStatus]),
     ClientsModule.registerAsync({
       clients: [
         {
@@ -42,6 +41,7 @@ import { JobStatus } from './models/job-status.model';
             options: {
               urls: [configService.get('broker.url') as RmqUrl],
               queue: configService.get('broker.queue_commands'),
+              noAck: true,
               queueOptions: {
                 durable: true,
               },
@@ -51,8 +51,14 @@ import { JobStatus } from './models/job-status.model';
       ],
       isGlobal: true,
     }),
+    TypeOrmModule.forFeature([Todo, JobStatus]),
   ],
-  controllers: [EventsController],
-  providers: [TodoService, QueueClientService, JobStatusService],
+  controllers: [TodoController],
+  providers: [
+    TodoService,
+    TodoCommandsService,
+    QueueClientService,
+    JobStatusService,
+  ],
 })
-export class EventHandlersModule {}
+export class HttpApiModule {}

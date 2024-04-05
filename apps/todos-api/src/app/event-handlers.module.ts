@@ -1,18 +1,16 @@
 import { Module } from '@nestjs/common';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CommandsController } from './commands.controller';
 import config from './config';
-import { EventTransactionService } from './event-transaction.service';
-import { EventsClientService } from './events-client.service';
-import { Event } from './models/event.model';
-import { Outbox } from './models/outbox.model';
-import { OutboxService } from './outbox.service';
+import { EventsController } from './events.controller';
+import { Todo } from './models/todo.model';
+import { TodoService } from './todo.service';
+import { QueueClientService } from './queue-client.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RmqUrl } from '@nestjs/microservices/external/rmq-url.interface';
-import { Todo } from './models/todo.model';
+import { JobStatusService } from './job-status.service';
+import { JobStatus } from './models/job-status.model';
 
 @Module({
   imports: [
@@ -27,24 +25,22 @@ import { Todo } from './models/todo.model';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.database'),
-        entities: [Todo, Event, Outbox],
-        // Note: not recommended for production
-        synchronize: true,
+        entities: [Todo, JobStatus],
+        synchronize: process.env.NODE_ENV === 'development',
       }),
     }),
-    TypeOrmModule.forFeature([Event, Outbox]),
-    ScheduleModule.forRoot(),
+    TypeOrmModule.forFeature([Todo, JobStatus]),
     ClientsModule.registerAsync({
       clients: [
         {
-          name: 'queue-events',
+          name: 'queue-commands',
           imports: [ConfigModule],
           inject: [ConfigService],
           useFactory: async (configService: ConfigService) => ({
             transport: Transport.RMQ,
             options: {
               urls: [configService.get('broker.url') as RmqUrl],
-              queue: configService.get('broker.queue_events'),
+              queue: configService.get('broker.queue_commands'),
               queueOptions: {
                 durable: true,
               },
@@ -55,7 +51,7 @@ import { Todo } from './models/todo.model';
       isGlobal: true,
     }),
   ],
-  controllers: [CommandsController],
-  providers: [EventTransactionService, OutboxService, EventsClientService],
+  controllers: [EventsController],
+  providers: [TodoService, QueueClientService, JobStatusService],
 })
-export class AppModule {}
+export class EventHandlersModule {}

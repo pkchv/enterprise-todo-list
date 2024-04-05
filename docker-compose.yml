@@ -1,44 +1,49 @@
 version: "3.8"
 
+include:
+  - docker-compose.core.yml
+
 services:
-  rabbitmq:
-    extends:
-      file: docker-compose.core.yml
-      service: rabbitmq
-
-  postgres:
-    extends:
-      file: docker-compose.core.yml
-      service: postgres
-
-  data-store:
-    image: demo-data-store:main
+  todos-datastore:
+    image: todos-datastore:main
+    container_name: todos-datastore
     depends_on:
       - rabbitmq
       - postgres
     environment:
-      - NODE_ENV=production
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+     - NODE_ENV=development
+     - PORT=3000
+     - DATABASE_HOST=postgres
+     - DATABASE_PORT=5432
+     - DATABASE_USERNAME=postgres
+     - DATABASE_PASSWORD=postgres
+     - DATABASE_NAME=todos_datastore
+     - BROKER_SERVICE=todos-datastore
+     - BROKER_URL=amqp://guest:guest@rabbitmq:5672
+     - BROKER_QUEUE_COMMANDS_NAME=todos-commands
+     - BROKER_QUEUE_EVENTS_NAME=todos-events
+    networks:
+      - core
 
-  api-gateway:
-    image: demo-api-gateway:main
+  todos-api:
+    image: todos-api:main
+    container_name: todos-api
     ports:
       - 3000:3000
     depends_on:
       - rabbitmq
       - postgres
     environment:
-      - NODE_ENV=production
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+     - NODE_ENV=development
+     - PORT=3000
+     - DATABASE_HOST=postgres
+     - DATABASE_PORT=5432
+     - DATABASE_USERNAME=postgres
+     - DATABASE_PASSWORD=postgres
+     - DATABASE_NAME=todos_api
+     - BROKER_SERVICE=todos-api
+     - BROKER_URL=amqp://guest:guest@rabbitmq:5672
+     - BROKER_QUEUE_COMMANDS_NAME=todos-commands
+     - BROKER_QUEUE_EVENTS_NAME=todos-events
+    networks:
+      - core

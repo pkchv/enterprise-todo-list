@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, VersionColumn } from 'typeorm';
 
 @Entity()
 export class Todo {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()

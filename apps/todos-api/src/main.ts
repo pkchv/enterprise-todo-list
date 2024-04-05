@@ -1,12 +1,16 @@
+// Note: for generatePackageJson flag to work properly with dynamically imported postgres driver
+import 'pg';
+import 'reflect-metadata';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { HttpApiModule } from './app/http-api.module';
 import { EventHandlersModule } from './app/event-handlers.module';
+import { HttpApiModule } from './app/http-api.module';
 
 async function bootstrap() {
-  const url = process.env.RABBITMQ_URL ?? 'amqp://localhost:5672';
+  const url = process.env.BROKER_URL ?? 'amqp://localhost:5672';
   const queue = process.env.BROKER_QUEUE_EVENTS_NAME ?? 'todos-events';
 
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
