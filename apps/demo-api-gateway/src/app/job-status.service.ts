@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventDto } from './dto/event.dto';
 import { JobStatus } from './models/job-status.model';
-import { stat } from 'fs';
 
 @Injectable()
 export class JobStatusService {
